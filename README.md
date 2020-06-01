@@ -1,2 +1,2 @@
-# YOUR COURSE TITLE
-20XX Session XX Course Work
+# System and Software Security Assessment
+2020 Session Two Course Work
