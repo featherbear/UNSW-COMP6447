@@ -208,3 +208,28 @@ inputData(0x68 + 8, b"A"*0x60 + canary + b'A'*8 + b'\xc6\x86\x04\x08')
                     # PAD                # PAD    # Win Function    
 quit()
 ```
+
+---
+
+# Reverse Engineering
+
+The function `main` performs a `scanf` call, which an the integer into the variable at address `ebp - 0xc`. This value is then compared to `0x539` (1337), which if true prints out _"Your so leet!"_, else _"Bye"_. The program returns with the status code `1`
+
+> gcc -m32 -fno-stack-protector -fno-pic reversing.c
+
+```c
+#include <stdio.h>
+
+int main(int argc) {
+    int var_14;
+    scanf("%d", &var_14);
+
+    if (var_14 == 1337) {
+        puts("Your so leet!"); // You're *
+    } else {
+        puts("Bye");
+    }
+
+    return 1;
+}
+```
