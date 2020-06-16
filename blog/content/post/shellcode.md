@@ -85,7 +85,11 @@ If firewalls detect and block `NOP*1000`, we could use other useless 1-byte inst
 
 # Preventing shellcode
 
-`mprotect` can disable the executability of a memory region; preventing shellcode
+`mprotect` can disable the executability of a memory region by adding the NX bit - preventing shellcode
+
+## Circumventing the NX bit
+
+// Next time :)
 
 # Other
 
