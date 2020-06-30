@@ -25,9 +25,7 @@ sequenceDiagrams:
 
 * Endian-ness
   * Does not apply to registers
-  * Networks use - Big-endian 
+  * Networks use big-endian!
   * Little endian makes more sense for integers
 
 * Virtual memory
-
-
