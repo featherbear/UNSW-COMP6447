@@ -247,3 +247,36 @@ p.interactive()
 ```
 
 ---
+
+# Reversing Challenge
+
+## Analysis
+
+The assembly code contains a function that returns a value.  
+`0x2aaaaaaab` appears to be a rounded value of `2**32 // 6`, which appears to be a signed integer division by 6.
+
+Two arguments, `arg1` and `arg2` are added together as a sum, and are worked on.  
+
+The final return value appears to be `arg1 + arg2 - 6 * [ HI((arg1+arg2) * 0x2aaaaaaab) - (arithmetic (arg+arg2) >> by 0x1f (31)) ]`
+
+In simplification, we reach the expression `sum - (sum / 6 * 6)`
+
+* `sum/6`         => number of times 6 fits in the sum
+* `(sum/6) * 6`   => quotient * 6 => highest multiple of 6 in the sum
+* `sum - sum/6*6` => remainder when dividing by 6
+
+This finally simplifies to the `mod 6` operation.
+
+## Source Code
+
+```c
+int re_this(int arg1, int arg2) {
+    return (arg1 + arg2) % 6;
+}
+
+int main() {
+    return re_this(1,2);
+}
+```
+
+---
