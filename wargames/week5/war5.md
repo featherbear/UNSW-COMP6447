@@ -248,6 +248,31 @@ p.interactive()
 
 ---
 
+# source.c Code Audit
+
+* Directory traversal vulnerability - arbitrary write to any file
+  * Location: `source.c:71`
+  * Example: `action = "../../../../../../../../../../../../../etc/passwd"`
+* Directory traversal vulnerability - arbitrary read of any file
+  * Location: `source.c:97`
+  * Example: `action = "../../../../../../../../../../../../../etc/passwd"`
+* Race condition - possible corruption of result data
+  * Location: `source.c:116-118`
+  * Example: Two simultaneous `list_files` calls may both attempt to read/write from `list.txt`
+* SET_PERMISSION_LEVEL - Incorrect check logic
+  * Location: `source.c:171`
+  * `admin_level` by default is set to `0` - allowing any user to perform RCE
+* SET_PERMISSION_LEVEL - `level` not scanned properly
+  * Location: `source.c:160`
+  * Fix: `sscanf(action + 1, "%d", &level)`
+  * Also, the level is reset with every new command???
+* SET_PERMISSION_LEVEL - Implicit type cast
+  * Location: `source.c:167`
+  * `admin_level` is of type `uint8_t`, whilst `level` is of type `int`
+  * An input of 256 will skip the `level == 0` check, but will result in `0` when casted to an 8-bit value, granting the user administrative privilege
+  
+---
+
 # Reversing Challenge
 
 ## Analysis
@@ -278,5 +303,3 @@ int main() {
     return re_this(1,2);
 }
 ```
-
----
