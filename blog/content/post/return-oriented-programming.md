@@ -118,3 +118,13 @@ If there are no useful stack pivoting gadgets, we could create use a RET sled
 It uses constraint solving to generate and understand the effects of gadgets.
   
 - Looks for dependencies of gadgets, and side effects
+
+
+---
+
+# One Gadgets
+
+A single gadget that pops a shell :o.  
+Often contains addresses
+
+Useful in heap exploitation!
