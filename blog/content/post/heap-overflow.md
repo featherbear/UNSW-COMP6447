@@ -177,3 +177,7 @@ Heap spraying is a technique in which we fill all the free space in the heap, su
 # House of Einherjar
 
 * Requires a single byte overflow
+
+---
+
+https://heap-exploitation.dhavalkapil.com/

@@ -2,6 +2,7 @@
 title: "Tutorial 2"
 date: 2020-06-11T11:24:18+10:00
 
+description: "Buffer Overflows"
 hiddenFromHomePage: false
 postMetaInFooter: false
 
