@@ -2,6 +2,7 @@
 title: "Tutorial 8"
 date: 2020-07-26T23:18:29+10:00
 
+categories: ["Tutorials"]
 description: "Heap Overflows"
 hiddenFromHomePage: false
 postMetaInFooter: false

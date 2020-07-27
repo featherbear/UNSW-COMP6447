@@ -2,6 +2,7 @@
 title: "Tutorial 1"
 date: 2020-06-04T13:15:46+10:00
 
+categories: ["Tutorials"]
 description: "Introduction to Tooling Frameworks"
 hiddenFromHomePage: false
 postMetaInFooter: false

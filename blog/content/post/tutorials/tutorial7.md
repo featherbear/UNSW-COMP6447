@@ -2,6 +2,7 @@
 title: "Tutorial 7"
 date: 2020-07-19T18:12:51+10:00
 
+categories: ["Tutorials"]
 description: "ROP Chains"
 hiddenFromHomePage: false
 postMetaInFooter: false
