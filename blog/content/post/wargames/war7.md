@@ -14,6 +14,8 @@ sequenceDiagrams:
   enable: false
   options: ""
 
+draft: true
+
 ---
 
 ## usemedontabuseme
