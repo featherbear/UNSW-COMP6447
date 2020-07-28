@@ -1,6 +1,6 @@
 ---
 title: "Wargames 7"
-date: 2020-06-22T12:00:00+10:00
+date: 2020-07-22T12:00:00+10:00
 
 categories: ["Wargames"]
 hiddenFromHomePage: false
@@ -13,8 +13,6 @@ flowchartDiagrams:
 sequenceDiagrams: 
   enable: false
   options: ""
-
-draft: true
 
 ---
 
@@ -98,3 +96,25 @@ The `free` address of the GOT can be overridden to the `system` call, to gain ac
 [[Binary](https://github.com/featherbear/UNSW-COMP6447/raw/master/wargames/week8/notezpz)]  
 [[Solution](https://github.com/featherbear/UNSW-COMP6447/raw/master/wargames/week8/solve-notezpz.py)]
 
+### Scenario
+
+The GOT table is Read-Only, NX is enabled, and PIE is enabled.  
+Unlike ezpz2, we won't be able to overwrite the GOT for `free`.  
+However, libc offers a `__free_hook` :hm:
+
+### Solution
+
+In order to set the `__free_hook`, we need to know the base address of libc - for example through the GOT.  
+However to get the address of the GOT (due to PIE), we need to leak the program base address.  
+The allocated memory in the heap contains a function pointer to `print_question` - something inside the program memory. However to get that, we need to leak the address of the heap first.
+
+So...
+
+Firstly, by performing a double free - we can leak the container address of a given question.  
+We can then overwrite the address that `malloc` will return - allowing us to control where we read/write data from/to. By changing the buffer address to the container address, we can leak the address of `print_question`.
+
+We can then calculate the program base through `print_question`'s offset.  
+After that, we can leak addresses from the GOT, and use that to calculate the libc base.  
+
+With the libc base known, we can write the address of `system` into `__free_hook`.  
+After writing `"/bin/sh\0"` back into the actual buffer, and resetting the buffer location to there; by calling the `delete_question` function - `free(*(eax + 0x18))` will be called, which will spawn a shell.
