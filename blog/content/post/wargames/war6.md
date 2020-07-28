@@ -1,6 +1,6 @@
 ---
 title: "Wargames 6"
-date: 2020-07-12T12:00:00+10:00
+date: 2020-07-19T12:00:00+10:00
 
 categories: ["Wargames"]
 hiddenFromHomePage: false
