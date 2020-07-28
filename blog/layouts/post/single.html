@@ -32,7 +32,7 @@
 
     <!-- Content -->
     <div class="post-content">
-      {{ .Content }}
+      {{ if .Site.IsServer }} {{ .Content }} {{ else }} {{ .Content | replaceRE "FLAG{.+?}" "FLAG{-flag-redacted-}" | safeHTML }} {{ end }}
     </div>
 
     <!-- Copyright -->
