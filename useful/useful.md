@@ -1,5 +1,11 @@
 # Useful Things
 
+## Memory
+
+* `old_ebp` is the old ebp address
+* `ebp+4` is the return address
+* i.e. a buffer at `ebp-0x108` needs to have `0x108 + 4` bytes of padding before the overwrite return address
+
 ## Defeating Protection Mechanisms
 
 * RELRO
@@ -36,6 +42,14 @@ RET sled?
 3) Check for vulnerable `printf` functions
 4) Check for vulnerable `free` routines
 
+## Source Auditing Checklist
+
+- Check types
+- Check the subtraction instructions done as arguments to function calls - can it be negative? overflow?
+- Check the checks (pre-increment or post-increment)
+- Check indexes of arrays
+- Check negatives
+
 ## Programs
 
 * `gropper` - `ropper` with `grep`
@@ -65,10 +79,14 @@ gropper () { ropper -f "$1" --nocolor | grep "$2"; }
 * `p.sendlineafter(token, line)`
 * `p32(int)` -> 4_byte
 * `u32(4_byte)` -> int
-* `fit({ map }, filler=b'\0')`
+* `fit / flat ({ map }, filler=b'\0')`
 * `shellGen(assembly)` - function_shellGen.py
 * `genFmtStr(byte4, where, stackStart)` - function_genFmtStr.py
-
+* `p.elf`
+  * `.address = base_address`
+  * `.symbols['name']`
+  * `.plt['name']`
+  * `.search()`
 ## Other
 
 * Syscall Table - https://featherbear.cc/UNSW-COMP6447/syscall/
