@@ -1,0 +1,27 @@
+# 1.c
+
+Type mismatch between `storage` and `elem` will cause the loop to write data past the `storage` buffer.  
+This will allow control of 96 byte past the buffer, possibly leading to shell execution (ROP, shellcode, function)
+
+# 2.c
+
+if `l < sizeof(struct hdr)` (l < 8), a large number will be used as the size for `read_all`, allowing a buffer overflow of the `read_packet` function.
+
+# 3.c
+
+`header.size` is a signed integer, if filled with a negative value, that negative value will be cast to a large number in `fread`, causing a buffer overflow in `data`.
+
+~if `(argc < 2)`, `fclose(file)` will close `file` on an undefined `file` variable.~
+
+# 4.c
+
+```
+++st->top;
+st->array[st->top]
+```
+
+`st` not guaranteed to exist, can lead to unpredicable memory access and modification.  
+Also, the check for `st->top == HEIGHT` is done too soon, and does not prevent `++st->top`.
+
+
+
