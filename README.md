@@ -7,6 +7,6 @@ Hi there! If you can see this message, you've reached the repository containing 
 
 You'll probably find that the most useful thing here is the [blog site for this course](https://featherbear.cc/UNSW-COMP6447/), where all my notes are!
 
-Otherwise, the `labs`, `midsem` and `wargames` directories might be useful...
+Otherwise, the `labs`, `wargames` and `useful` directories might be useful...
 
-Also, if you wanted a script to launch _pwndocker_, have a look at the `startPwnDocker.sh` script!
+Also, if you wanted a script to launch _pwndocker_, have a look at the `useful/startPwnDocker.sh` script!
